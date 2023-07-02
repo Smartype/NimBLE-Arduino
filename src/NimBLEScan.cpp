@@ -319,12 +319,8 @@ bool NimBLEScan::startEx(uint32_t millis, void (*scanCompleteCB)(NimBLEScanResul
     m_durationMillis = millis;
 
     // If 0 duration specified then we assume a continuous scan is desired.
-    if(duration == 0){
-        duration = BLE_HS_FOREVER;
-    }
-    else{
-        // convert duration to milliseconds
-        duration = millis;
+    if(millis == 0){
+        millis = BLE_HS_FOREVER;
     }
 
     // Set the flag to ignore the results while we are deleting the vector
@@ -338,7 +334,7 @@ bool NimBLEScan::startEx(uint32_t millis, void (*scanCompleteCB)(NimBLEScanResul
     scan_params.itvl    = m_scan_params.itvl;
     scan_params.window  = m_scan_params.window;
     int rc = ble_gap_ext_disc(NimBLEDevice::m_own_addr_type,
-                              duration/10,
+                              millis/10,
                               0,
                               m_scan_params.filter_duplicates,
                               m_scan_params.filter_policy,
@@ -349,7 +345,7 @@ bool NimBLEScan::startEx(uint32_t millis, void (*scanCompleteCB)(NimBLEScanResul
                               NULL);
 #else
     int rc = ble_gap_disc(NimBLEDevice::m_own_addr_type,
-                          duration,
+                          millis,
                           &m_scan_params,
                           NimBLEScan::handleGapEvent,
                           NULL);
