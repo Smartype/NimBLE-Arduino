@@ -498,8 +498,8 @@ void NimBLEScan::onHostReset() {
 void NimBLEScan::onHostSync() {
     m_ignoreResults = false;
 
-    if(m_duration == 0 && m_pAdvertisedDeviceCallbacks != nullptr) {
-        start(m_duration, m_scanCompleteCB);
+    if(m_durationMillis == 0 && m_pAdvertisedDeviceCallbacks != nullptr) {
+        startEx(m_durationMillis, m_scanCompleteCB);
     }
 }
 

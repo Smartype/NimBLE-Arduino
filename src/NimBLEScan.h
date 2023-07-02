@@ -64,8 +64,8 @@ class NimBLEScan {
 public:
     bool                start(uint32_t duration, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue = false);
     NimBLEScanResults   start(uint32_t duration, bool is_continue = false);
-    bool                startExt(uint32_t millis, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue = false);
-    NimBLEScanResults   startExt(uint32_t millis, bool is_continue = false);
+    bool                startEx(uint32_t millis, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue = false);
+    NimBLEScanResults   startEx(uint32_t millis, bool is_continue = false);
     bool                isScanning();
     void                setAdvertisedDeviceCallbacks(NimBLEAdvertisedDeviceCallbacks* pAdvertisedDeviceCallbacks, bool wantDuplicates = false);
     void                setActiveScan(bool active);
