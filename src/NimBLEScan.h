@@ -64,6 +64,8 @@ class NimBLEScan {
 public:
     bool                start(uint32_t duration, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue = false);
     NimBLEScanResults   start(uint32_t duration, bool is_continue = false);
+    bool                startExt(uint32_t millis, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue = false);
+    NimBLEScanResults   startExt(uint32_t millis, bool is_continue = false);
     bool                isScanning();
     void                setAdvertisedDeviceCallbacks(NimBLEAdvertisedDeviceCallbacks* pAdvertisedDeviceCallbacks, bool wantDuplicates = false);
     void                setActiveScan(bool active);
@@ -94,7 +96,7 @@ private:
     ble_gap_disc_params                 m_scan_params;
     bool                                m_ignoreResults;
     NimBLEScanResults                   m_scanResults;
-    uint32_t                            m_duration;
+    uint32_t                            m_durationMillis;
     ble_task_data_t                     *m_pTaskData;
     uint8_t                             m_maxResults;
 };

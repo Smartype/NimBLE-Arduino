@@ -38,7 +38,7 @@ NimBLEScan::NimBLEScan() {
     m_pAdvertisedDeviceCallbacks     = nullptr;
     m_ignoreResults                  = false;
     m_pTaskData                      = nullptr;
-    m_duration                       = BLE_HS_FOREVER; // make sure this is non-zero in the event of a host reset
+    m_durationMillis                 = BLE_HS_FOREVER; // make sure this is non-zero in the event of a host reset
     m_maxResults                     = 0xFF;
 }
 
@@ -299,6 +299,9 @@ bool NimBLEScan::isScanning() {
     return ble_gap_disc_active();
 }
 
+bool NimBLEScan::start(uint32_t duration, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue) {
+  return startEx(duration * 1000, scanCompleteCB, is_continue);
+}
 
 /**
  * @brief Start scanning.
@@ -307,13 +310,13 @@ bool NimBLEScan::isScanning() {
  * @param [in] is_continue Set to true to save previous scan results, false to clear them.
  * @return True if scan started or false if there was an error.
  */
-bool NimBLEScan::start(uint32_t duration, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue) {
-    NIMBLE_LOGD(LOG_TAG, ">> start: duration=%" PRIu32, duration);
+bool NimBLEScan::startEx(uint32_t millis, void (*scanCompleteCB)(NimBLEScanResults), bool is_continue) {
+    NIMBLE_LOGD(LOG_TAG, ">> start: millis=%" PRIu32, millis);
 
     // Save the callback to be invoked when the scan completes.
     m_scanCompleteCB = scanCompleteCB;
     // Save the duration in the case that the host is reset so we can reuse it.
-    m_duration = duration;
+    m_durationMillis = millis;
 
     // If 0 duration specified then we assume a continuous scan is desired.
     if(duration == 0){
@@ -321,7 +324,7 @@ bool NimBLEScan::start(uint32_t duration, void (*scanCompleteCB)(NimBLEScanResul
     }
     else{
         // convert duration to milliseconds
-        duration = duration * 1000;
+        duration = millis;
     }
 
     // Set the flag to ignore the results while we are deleting the vector
@@ -390,14 +393,18 @@ bool NimBLEScan::start(uint32_t duration, void (*scanCompleteCB)(NimBLEScanResul
 } // start
 
 
+NimBLEScanResults NimBLEScan::start(uint32_t duration, bool is_continue) {
+    return startEx(duration * 1000, is_continue);
+}
+
 /**
  * @brief Start scanning and block until scanning has been completed.
  * @param [in] duration The duration in seconds for which to scan.
  * @param [in] is_continue Set to true to save previous scan results, false to clear them.
  * @return The NimBLEScanResults.
  */
-NimBLEScanResults NimBLEScan::start(uint32_t duration, bool is_continue) {
-    if(duration == 0) {
+NimBLEScanResults NimBLEScan::startEx(uint32_t millis, bool is_continue) {
+    if(millis == 0) {
         NIMBLE_LOGW(LOG_TAG, "Blocking scan called with duration = forever");
     }
 
@@ -405,7 +412,7 @@ NimBLEScanResults NimBLEScan::start(uint32_t duration, bool is_continue) {
     ble_task_data_t taskData = {nullptr, cur_task, 0, nullptr};
     m_pTaskData = &taskData;
 
-    if(start(duration, nullptr, is_continue)) {
+    if(startEx(millis, nullptr, is_continue)) {
 #ifdef ulTaskNotifyValueClear
         // Clear the task notification value to ensure we block
         ulTaskNotifyValueClear(cur_task, ULONG_MAX);
